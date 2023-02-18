@@ -1,4 +1,4 @@
-package study;
+package 완전탐색;
 
 import java.util.Scanner;
 
