@@ -4,14 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 // 1. 모든 구간의 누적 합 구하기
 // 2. 합이 t가 되는 누적 합 찾기
 // 	1) lower bound, upper bound 구현
 // 	2) 투 포인터 사용
+//	3) map 사용 -> 시간 단축 bbbb
 
-public class Main_두배열의합_2143_g3_ms {
+public class Main_두배열의합_2143_g3_420ms_v2 {
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st;
@@ -32,57 +35,32 @@ public class Main_두배열의합_2143_g3_ms {
 			brr[i] = brr[i - 1] + Integer.parseInt(st.nextToken());
 		}
 
-		// 모든 구간의 누적 합 구하기
-		int[] sumA = new int[lenA * (lenA + 1) / 2];
-		int[] sumB = new int[lenB * (lenB + 1) / 2];
+		// A 배열에 대해 모든 부분합 구하기
+		// key:A 배열 부분합 / value:부분합 값이 같은 경우의 개수
+		Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+
 		int idx = 0;
 		for (int i = 0; i <= lenA; i++) {
 			for (int j = i + 1; j <= lenA; j++) {
-				sumA[idx] = arr[j] - arr[i];
-				idx++;
+				// 메서드 참조
+				// (a) -> Integer.sum(a) 대신 Integer::sum
+				map.merge(arr[j] - arr[i], 1, Integer::sum);
 			}
 		}
-		Arrays.sort(sumA);
 
-		idx = 0;
+		// B 배열에 대해 모든 부분합 구하
+		long cnt = 0;
 		for (int i = 0; i <= lenB; i++) {
 			for (int j = i + 1; j <= lenB; j++) {
-				sumB[idx] = brr[j] - brr[i];
-				idx++;
+				// 합이 t가 되는 경우 찾기
+				// 이때 map 사용
+				int key = t - (brr[j] - brr[i]);
+				if (map.containsKey(key))
+					cnt += map.get(key);
 			}
 		}
-		Arrays.sort(sumB);
 
-		System.out.printf("%d", twoPointer(sumA, sumB, t));
+		System.out.printf("%d", cnt);
 	}
 
-	public static long twoPointer(int[] sumA, int[] sumB, int t) {
-		long cnt = 0;
-		int sum;
-		int pA = 0, pB = sumB.length - 1;
-		while (pA < sumA.length && pB >= 0) {
-			sum = sumA[pA] + sumB[pB];
-			if (sum == t) {
-				int a = sumA[pA];
-				int b = sumB[pB];
-				long aCnt = 0;
-				long bCnt = 0;
-
-				while (pA < sumA.length && sumA[pA] == a) {
-					aCnt++;
-					pA++;
-				}
-				while (pB >= 0 && sumB[pB] == b) {
-					bCnt++;
-					pB--;
-				}
-				cnt += aCnt * bCnt;
-			} else if (sum > t) {
-				pB--;
-			} else {
-				pA++;
-			}
-		}
-		return cnt;
-	}
 }
