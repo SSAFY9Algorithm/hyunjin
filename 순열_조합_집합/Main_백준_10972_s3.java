@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+package study;
+=======
 package 순열_조합_집합;
+>>>>>>> hyunjin
 
 import java.io.BufferedReader;
 import java.io.IOException;
